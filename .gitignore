@@ -1,0 +1,142 @@
+# ==================== 编译产物 ====================
+build/
+cmake-build-*/
+out/
+
+# 库文件
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+
+# ==================== CMake ====================
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CPM.cmake
+!cuda.cmake
+
+# ==================== CPM ====================
+CPM/
+cpm-package/
+
+# ==================== IDE ====================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# CLion
+.idea/
+
+# Vim
+*.netrwhist
+
+# ==================== 编译器和调试器 ====================
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# 调试文件
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# ==================== 日志和临时文件 ====================
+*.log
+logs/
+*.tmp
+
+# ==================== 模型文件（大文件） ====================
+*.bin
+*.gguf
+*.pth
+*.pt
+*.safetensors
+*.onnx
+
+# 模型数据目录
+models/
+checkpoints/
+weights/
+
+# ==================== Python ====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv
+
+# ==================== 测试和覆盖率 ====================
+coverage/
+*.gcda
+*.gcno
+*.gcov
+coverage.info
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# ==================== 文档 ====================
+docs/_build/
+docs/.doctrees/
+*.toc
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# ==================== 其他 ====================
+.bak
+*.backup
+*.old
+*.orig
+*~
+
+# NVIDIA Nsight
+*.nsight-cc-report
+*.nsys-rep
+
+# Profiler files
+*.prof
+*.profraw
+*.profdata
