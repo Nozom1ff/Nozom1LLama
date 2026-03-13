@@ -1,4 +1,3 @@
-
 # 参考: https://code.google.com/p/angleproject/wiki/CodingStandard
 # Clang 文档: http://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: Chromium  # 基于 Chromium 代码风格
@@ -29,9 +28,7 @@ BraceWrapping:  # 大括号换行配置
   SplitEmptyFunction: false  # 不分割空函数
   SplitEmptyRecord: false   # 不分割空记录
   SplitEmptyNamespace: false # 不分割空命名空间
-
-  # 保持 extern "C" 块不缩进
-  AfterExternBlock: false
+  AfterExternBlock: false   # 保持 extern "C" 块不缩进
 
 # 缩进 case 标签
 IndentCaseLabels: true  # 缩进 case 标签
@@ -57,3 +54,30 @@ IndentPPDirectives: AfterHash  # 在 # 后缩进预处理器指令
 
 # 包含块风格
 IncludeBlocks: Preserve  # 保持包含块风格
+
+# ========== 新增/修改的关键配置 ==========
+# 1. 成员变量/函数间保留空行，避免紧凑
+EmptyLineBeforeAccessModifier: Always  # 访问修饰符前保留空行
+MaxEmptyLinesToKeep: 3                 # 最多保留3个连续空行
+SeparateDefinitionBlocks: Always       # 类/结构体的成员块间强制空行
+PackConstructorInitializers: Never     # 构造函数初始化列表不打包，保持宽松
+
+# 2. 函数参数自动换行相关
+BreakBeforeBinaryOperators: None       # 二进制运算符前不换行（不影响参数）
+BreakBeforeTernaryOperators: true      # 三元运算符前换行（辅助可读性）
+BreakConstructorInitializers: BeforeColon # 构造函数初始化列表换行
+BreakAfterJavaFieldAnnotations: false  # 适配C++，关闭Java注解换行
+BreakInheritanceList: BeforeColon     # 继承列表换行
+BinPackArguments: false                # 禁止参数打包（多参数自动换行）
+BinPackParameters: false               # 禁止形参打包（函数定义时多参数换行）
+AllowAllArgumentsOnNextLine: true      # 允许函数调用参数全部换行
+AllowAllConstructorInitializersOnNextLine: true # 允许构造函数初始化列表全部换行
+AlignAfterOpenBracket: Align           # 括号后对齐（换行后的参数对齐）
+
+# 3. 保持代码宽松，不紧凑
+AllowShortFunctionsOnASingleLine: None  # 函数不缩成单行
+AllowShortBlocksOnASingleLine: false    # 代码块不缩成单行
+AllowShortIfStatementsOnASingleLine: Never  # if语句不缩成单行
+AllowShortLoopsOnASingleLine: false     # 循环不缩成单行
+CompactBraces: false                    # 不紧凑大括号（保持空行）
+InsertBraces: true                      # 强制使用大括号（增强可读性）
