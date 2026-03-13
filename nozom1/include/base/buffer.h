@@ -9,19 +9,20 @@ class Buffer : public NoCopyable, std::enable_shared_from_this<Buffer>
 {
 
 private:
-    size_t byte_size        = 0;
-    void *ptr               = nullptr;
-    bool use_externel_      = false;
+    size_t byte_size_       = 0;
+    void *ptr_              = nullptr;
+    bool use_external_      = false;
     DeviceType device_type_ = DeviceType::kCPU;
     std::shared_ptr<DeviceAllocator> allocator_;
 
 public:
     explicit Buffer() = default;
 
-    explicit Buffer(size_t byte_size,
-                    std::shared_ptr<DeviceAllocator> allocator = nullptr,
-                    void *ptr                                  = nullptr,
-                    bool use_external                          = false);
+    explicit Buffer(
+        size_t byte_size,
+        std::shared_ptr<DeviceAllocator> allocator = nullptr,
+        void *ptr                                  = nullptr,
+        bool use_external                          = false);
     virtual ~Buffer();
 
     bool allocate();
@@ -31,6 +32,7 @@ public:
     void copy_from(const Buffer *buffer) const;
 
     void *ptr();
+    const void *ptr() const;
 
     size_t byte_size() const;
 
