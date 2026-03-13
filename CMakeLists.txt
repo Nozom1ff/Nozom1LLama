@@ -107,6 +107,7 @@ file(GLOB_RECURSE CUDA_SOURCES
 # 创建静态库
 add_library(nozom1_base STATIC
     ${BASE_SOURCES}
+    ${TENSOR_SOURCES}
 )
 
 target_include_directories(nozom1_base

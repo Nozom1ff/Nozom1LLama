@@ -12,7 +12,7 @@ Buffer::Buffer(size_t byte_size, std::shared_ptr<DeviceAllocator> allocator, voi
 {
     if (!ptr_ && allocator_)
     {
-        device_type_  = allocator_->device_type();
+        device_type_  = allocator_->deviceType();
         use_external_ = false;
         ptr_          = allocator_->allocate(byte_size);
     }
