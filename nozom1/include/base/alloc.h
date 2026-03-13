@@ -22,7 +22,7 @@ public:
 
     virtual void release(void *ptr) const = 0;
 
-    virtual void *allocate(size_t byte_size) const = 0;
+    virtual void *allocate(size_t byte_sie) const = 0;
 
     virtual void memcpy(const void *src,
                         void *dst,
