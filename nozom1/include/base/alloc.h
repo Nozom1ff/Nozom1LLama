@@ -28,8 +28,8 @@ public:
                         void *dst,
                         size_t byte_size,
                         MemcpyKind memcpy_kind = MemcpyKind::kMemcpyCPU2CPU,
-                        void *stream = nullptr,
-                        bool need_sync = false) const;
+                        void *stream           = nullptr,
+                        bool need_sync         = false) const;
 
     virtual void memset_zero(void *ptr, size_t byte_size, void *stream, bool need_sync = false);
 
