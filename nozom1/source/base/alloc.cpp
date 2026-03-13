@@ -16,11 +16,11 @@ void DeviceAllocator::memcpy(const void *src,
 
     cudaStream_t stream_ = nullptr;
 
-    // NOTE 启用cudsaStream进行异步传输
+    // NOTE 启用cudaStream进行异步传输
     if (stream)
-        stream_ = static_cast<CUstream_st *>(steram);
+        stream_ = static_cast<cudaStream_t>(stream);
 
-    if (memcpu_kind == MemcpyKind::kMemcpyCPU2CPU)
+    if (memcpy_kind == MemcpyKind::kMemcpyCPU2CPU)
     {
         std::memcpy(dst, src, byte_size);
     }
@@ -32,7 +32,7 @@ void DeviceAllocator::memcpy(const void *src,
         }
         else
         {
-            cudaMemcpy(dst, src, byte_size, cudaMemcpyHostToDevice, stream_);
+            cudaMemcpyAsync(dst, src, byte_size, cudaMemcpyHostToDevice, stream_);
         }
     }
     else if (memcpy_kind == MemcpyKind::kMemcpyCUDA2CPU)
@@ -43,7 +43,7 @@ void DeviceAllocator::memcpy(const void *src,
         }
         else
         {
-            cudaMemcpy(dst, src, byte_size, cudaMemcpyDeviceToHost, stream_);
+            cudaMemcpyAsync(dst, src, byte_size, cudaMemcpyDeviceToHost, stream_);
         }
     }
     else if (memcpy_kind == MemcpyKind::kMemcpyCUDA2CUDA)
@@ -54,7 +54,7 @@ void DeviceAllocator::memcpy(const void *src,
         }
         else
         {
-            cudaMemcpy(dst, src, byte_size, cudaMemcpyDeviceToDevice, stream_);
+            cudaMemcpyAsync(dst, src, byte_size, cudaMemcpyDeviceToDevice, stream_);
         }
     }
     else
@@ -69,8 +69,8 @@ void DeviceAllocator::memcpy(const void *src,
 
 void DeviceAllocator::memset_zero(void *ptr, size_t byte_size, void *stream, bool need_sync)
 {
-    CHECK(device_type_ != base::DeviceType::Unknown);
-    if (device_type == base::DeviceType::kDeviceCPU)
+    CHECK(device_type_ != base::DeviceType::kUnknown);
+    if (device_type_ == base::DeviceType::kCPU)
     {
         std::memset(ptr, 0, byte_size);
     }

@@ -22,13 +22,13 @@ public:
 
     virtual void release(void *ptr) const = 0;
 
-    virtual void *allocate(size_t byte_sie) const = 0;
+    virtual void *allocate(size_t byte_size) const = 0;
 
     virtual void memcpy(const void *src,
                         void *dst,
                         size_t byte_size,
                         MemcpyKind memcpy_kind = MemcpyKind::kMemcpyCPU2CPU,
-                        void *stream,
+                        void *stream = nullptr,
                         bool need_sync = false) const;
 
     virtual void memset_zero(void *ptr, size_t byte_size, void *stream, bool need_sync = false);
@@ -44,7 +44,7 @@ public:
     void *allocate(size_t byte_size) const override;
 
     void release(void *ptr) const override;
-}
+};
 
 struct CudaMemoryBuffer
 {
@@ -53,7 +53,7 @@ struct CudaMemoryBuffer
     bool busy;
     CudaMemoryBuffer() = default;
     CudaMemoryBuffer(void *data, size_t byte_size, bool busy) : data(data), byte_size(byte_size), busy(busy) {}
-}
+};
 
 class CUDADeviceAllocator : public DeviceAllocator
 {
@@ -65,8 +65,13 @@ public:
     void release(void *ptr) const override;
 
 private:
+    // 辅助函数
+    void *AllocateLargeBuffer(size_t byte_size, int device_id) const;
+    void *AllocateSmallBuffer(size_t byte_size, int device_id) const;
+    void CleanupIdleBuffers(int device_id) const;
+
     // NOTE 被const修饰的函数可以修改mutable变量修饰的变量
-    mutable std::map<int, size_t> no_busy_cnt;
+    mutable std::map<int, size_t> no_busy_cnt_;
     mutable std::map<int, std::vector<CudaMemoryBuffer>> big_buffers_map_;
     mutable std::map<int, std::vector<CudaMemoryBuffer>> cuda_buffers_map_;
 };
