@@ -233,4 +233,6 @@ void CUDADeviceAllocator::CleanupIdleBuffers(int device_id) const
     no_busy_cnt_[device_id] = 0;
 }
 
+std::shared_ptr<CUDADeviceAllocator> CUDADeviceAllocatorFactory::instance = nullptr;
+
 }  // namespace base
