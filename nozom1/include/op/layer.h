@@ -80,7 +80,7 @@ public:
 
     void set_layer_name(const std::string &layer_name);
 
-    void BaseLayer::set_data_type(base::DataType data_type);
+    void set_data_type(base::DataType data_type);
 
     base::DeviceType device_type() const;
 

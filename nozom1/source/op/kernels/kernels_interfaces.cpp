@@ -1,6 +1,6 @@
 #include <base/base.h>
 #include "cuda/add_kernel.cuh"
-#include "kernels_interface.h"
+#include "kernels_interfaces.h"
 
 namespace kernel
 {

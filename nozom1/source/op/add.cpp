@@ -1,10 +1,10 @@
 #include "op/add.h"
-#include "kernels/kernels_interface.h"
+#include "kernels/kernels_interfaces.h"
 
 namespace op
 {
-VecAddLayer::VecAddLayer(base::DeviceType device_type)
-    : Layer(device_type, LayerType::kLayerAdd, "Add")
+VecAddLayer::VecAddLayer(base::DeviceType device_type, base::DataType data_type)
+    : Layer(device_type, LayerType::kLayerAdd, data_type, "Add")
 {
     reset_input_size(2);
     reset_output_size(1);
@@ -13,7 +13,7 @@ VecAddLayer::VecAddLayer(base::DeviceType device_type)
 base::Status VecAddLayer::check() const
 {
     tensor::Tensor input1 = this->get_input(0);
-    tensor::Tensor input2 = this->get_input(0);
+    tensor::Tensor input2 = this->get_input(1);  // 修复：应该是 get_input(1)
     int32_t size          = input1.size();
     base::Status status;
 
@@ -49,7 +49,7 @@ base::Status VecAddLayer::forward()
     }
 
     auto input1 = this->get_input(0);
-    auto input2 = this->get_input(0);
+    auto input2 = this->get_input(1);  // 修复：应该是 get_input(1)
     auto output = this->get_output(0);
     if (device_type_ == base::DeviceType::kCUDA)
     {

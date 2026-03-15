@@ -34,11 +34,25 @@ void add_kernel_cu(const tensor::Tensor &input1,
     CHECK_EQ(size, output.size());
     int32_t thread_num = 256;
     int32_t block_num  = (size + thread_num - 1) / thread_num;
+
     if (stream)
     {
         cudaStream_t stream_ = static_cast<cudaStream_t>(stream);
         add_kernel_cu_fp32<<<block_num, thread_num, 0, stream_>>>(
             size, input1.ptr<float>(), input2.ptr<float>(), const_cast<float *>(output.ptr<float>()));
+    }
+    else
+    {
+        // 修复：即使 stream 为 null，也要执行 kernel（使用默认 stream）
+        add_kernel_cu_fp32<<<block_num, thread_num>>>(
+            size, input1.ptr<float>(), input2.ptr<float>(), const_cast<float *>(output.ptr<float>()));
+    }
+
+    // 检查 kernel 启动错误
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess)
+    {
+        LOG(ERROR) << "CUDA kernel launch failed: " << cudaGetErrorString(err);
     }
 }
 
