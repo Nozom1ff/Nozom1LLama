@@ -156,6 +156,11 @@ size_t Tensor::size() const
     return this->size_;
 }
 
+bool Tensor::is_empty() const
+{
+    return size_ == 0 || buffer_ == nullptr || buffer_->ptr() == nullptr;
+}
+
 size_t Tensor::byte_size() const
 {
     return this->size() * base::DataTypeSize(this->data_type_);
