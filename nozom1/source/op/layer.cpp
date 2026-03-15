@@ -245,8 +245,12 @@ base::Status Layer::forward(const std::vector<tensor::Tensor> &inputs, const std
     return forward();
 }
 
-LayerParam::LayerParam(base::DeviceType device_type, LayerType layer_type, bool is_quant_layer, std::string layer_name)
-    : Layer(device_type, layer_type, base::DataType::kUnknown, std::move(layer_name)),
+LayerParam::LayerParam(base::DeviceType device_type,
+                       LayerType layer_type,
+                       base::DataType data_type,
+                       bool is_quant_layer,
+                       std::string layer_name)
+    : Layer(device_type, layer_type, data_type, std::move(layer_name)),
       is_quant_layer_(is_quant_layer)
 {}
 
