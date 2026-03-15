@@ -169,6 +169,7 @@ class LayerParam : public Layer
 public:
     explicit LayerParam(base::DeviceType device_type,
                         LayerType layer_type,
+                        base::DataType data_type,
                         bool is_quant_layer    = false,
                         std::string layer_name = "");
 
