@@ -80,6 +80,8 @@ public:
 
     void set_layer_name(const std::string &layer_name);
 
+    void BaseLayer::set_data_type(base::DataType data_type);
+
     base::DeviceType device_type() const;
 
     void set_device_type(base::DeviceType device_type);
@@ -94,7 +96,10 @@ protected:
 class Layer : public BaseLayer
 {
 public:
-    explicit Layer(base::DeviceType device_type, LayerType layer_type, std::string layer_name = "");
+    explicit Layer(base::DeviceType device_type,
+                   LayerType layer_type,
+                   base::DataType data_type,
+                   std::string layer_name = "");
 
     base::Status init() override;
 

@@ -8,7 +8,8 @@ namespace op
 class VecAddLayer : public Layer
 {
 public:
-    explicit VecAddLayer(base::DeviceType device_type);
+    // NOTE 修改，作者版本硬编码fp32
+    explicit VecAddLayer(base::DeviceType device_type, base::DataType data_type = base::DataType::kTypeFp32);
 
     base::Status check() const override;
 

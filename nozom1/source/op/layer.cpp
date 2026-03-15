@@ -8,14 +8,15 @@
 namespace op
 {
 
-BaseLayer::BaseLayer(base::DeviceType device_type, LayerType layer_type, base::DataType data_type,
+BaseLayer::BaseLayer(base::DeviceType device_type,
+                     LayerType layer_type,
+                     base::DataType data_type,
                      std::string layer_name)
     : device_type_(device_type),
       layer_type_(layer_type),
       data_type_(data_type),
       layer_name_(std::move(layer_name))
-{
-}
+{}
 
 base::DataType BaseLayer::data_type() const
 {
@@ -32,8 +33,10 @@ base::Status BaseLayer::set_weight(int32_t idx, const tensor::Tensor &weight)
     return base::error::FunctionNotImplement();
 }
 
-base::Status BaseLayer::set_weight(int32_t idx, const std::vector<int32_t> &dims,
-                                   const void *weight_ptr, base::DeviceType device_type)
+base::Status BaseLayer::set_weight(int32_t idx,
+                                   const std::vector<int32_t> &dims,
+                                   const void *weight_ptr,
+                                   base::DeviceType device_type)
 {
     return base::error::FunctionNotImplement();
 }
@@ -48,6 +51,11 @@ void BaseLayer::set_layer_name(const std::string &layer_name)
     layer_name_ = layer_name;
 }
 
+void BaseLayer::set_data_type(base::DataType data_type)
+{
+    data_type_ = data_type;
+}
+
 base::DeviceType BaseLayer::device_type() const
 {
     return device_type_;
@@ -58,17 +66,17 @@ void BaseLayer::set_device_type(base::DeviceType device_type)
     device_type_ = device_type;
 }
 
-Layer::Layer(base::DeviceType device_type, LayerType layer_type, std::string layer_name)
-    : BaseLayer(device_type, layer_type, base::DataType::kUnknown, std::move(layer_name))
-{
-}
+Layer::Layer(base::DeviceType device_type, LayerType layer_type, base::DataType data_type, std::string layer_name)
+    : BaseLayer(device_type, layer_type, data_type, std::move(layer_name))
+{}
 
 base::Status Layer::init()
 {
     return base::error::Success();
 }
 
-base::Status Layer::check_tensor(const tensor::Tensor &tensor, base::DeviceType device_type,
+base::Status Layer::check_tensor(const tensor::Tensor &tensor,
+                                 base::DeviceType device_type,
                                  base::DataType data_type) const
 {
     if (tensor.is_empty())
@@ -87,7 +95,8 @@ base::Status Layer::check_tensor(const tensor::Tensor &tensor, base::DeviceType 
 }
 
 base::Status Layer::check_tensor_with_dim(const tensor::Tensor &tensor,
-                                          base::DeviceType device_type, base::DataType data_type,
+                                          base::DeviceType device_type,
+                                          base::DataType data_type,
                                           ...) const
 {
     std::va_list args;
@@ -227,21 +236,19 @@ size_t Layer::output_size() const
     return outputs_.size();
 }
 
-base::Status Layer::forward(const std::vector<tensor::Tensor> &inputs,
-                            const std::vector<tensor::Tensor> &outputs)
+base::Status Layer::forward(const std::vector<tensor::Tensor> &inputs, const std::vector<tensor::Tensor> &outputs)
 {
     // 直接赋值给成员变量（零拷贝，只拷贝 shared_ptr）
-    inputs_ = inputs;
+    inputs_  = inputs;
     outputs_ = outputs;
     // 调用无参版本做实际工作
     return forward();
 }
 
-LayerParam::LayerParam(base::DeviceType device_type, LayerType layer_type, bool is_quant_layer,
-                       std::string layer_name)
-    : Layer(device_type, layer_type, std::move(layer_name)), is_quant_layer_(is_quant_layer)
-{
-}
+LayerParam::LayerParam(base::DeviceType device_type, LayerType layer_type, bool is_quant_layer, std::string layer_name)
+    : Layer(device_type, layer_type, std::move(layer_name)),
+      is_quant_layer_(is_quant_layer)
+{}
 
 base::Status LayerParam::set_weight(int32_t idx, const tensor::Tensor &weight)
 {
@@ -276,15 +283,16 @@ void LayerParam::to_cuda()
     }
 }
 
-base::Status LayerParam::set_weight(int32_t idx, const std::vector<int32_t> &dims,
-                                    const void *weight_ptr, base::DeviceType device_type)
+base::Status LayerParam::set_weight(int32_t idx,
+                                    const std::vector<int32_t> &dims,
+                                    const void *weight_ptr,
+                                    base::DeviceType device_type)
 {
     CHECK_GE(idx, 0);
     CHECK_LT(idx, weights_.size());
     CHECK_NE(weight_ptr, nullptr);
 
-    size_t size =
-        std::accumulate(dims.begin(), dims.end(), sizeof(float), std::multiplies<>());
+    size_t size = std::accumulate(dims.begin(), dims.end(), sizeof(float), std::multiplies<>());
     std::shared_ptr<base::Buffer> buffer =
         std::make_shared<base::Buffer>(size, nullptr, const_cast<void *>(weight_ptr), true);
     if (device_type != base::DeviceType::kUnknown)
@@ -318,11 +326,9 @@ base::Status LayerParam::set_weight(int32_t idx, const std::vector<int32_t> &dim
         scales_tensor.set_device_type(device_type);
 
         // 创建 scales buffer
-        size_t scales_byte_size = scale_nums * sizeof(float);
-        std::shared_ptr<base::Buffer> scales_buffer =
-            std::make_shared<base::Buffer>(scales_byte_size, nullptr,
-                                          reinterpret_cast<void *>((int8_t *)weight_ptr + weight_size),
-                                          true);
+        size_t scales_byte_size                     = scale_nums * sizeof(float);
+        std::shared_ptr<base::Buffer> scales_buffer = std::make_shared<base::Buffer>(
+            scales_byte_size, nullptr, reinterpret_cast<void *>((int8_t *)weight_ptr + weight_size), true);
         scales_buffer->set_device_type(device_type);
         CHECK(scales_tensor.assign(scales_buffer));
 
