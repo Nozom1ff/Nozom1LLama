@@ -1,4 +1,4 @@
-#include "emb_kernel.cuh"
+#include "embedding_kernel.cuh"
 
 // NOTE 为什么不需要手动free input_cu
 /**

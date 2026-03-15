@@ -9,21 +9,21 @@ EmbeddingLayer::EmbeddingLayer(base::DeviceType device_type,
                                int32_t dim,
                                int32_t seq_len,
                                int32_t vocab_size,
-                               base::DataType data_type = base::DataType::kTypeFp32)
+                               base::DataType data_type)
     : dim_(dim),
       seq_len_(seq_len),
       vocab_size_(vocab_size),
       LayerParam(device_type, LayerType::kLayerEmbedding, data_type, false, "Embedding")
 {  // NOTE Layer param 才可以reset_weight_size
     reset_weight_size(1);
-    reset_input_size(2);
+    reset_input_size(1);  // 只需要 1 个输入（token ids）
     reset_output_size(1);
 }
 
 base::Status EmbeddingLayer::check() const
 {
     const auto &input_tensor = get_input(0);
-    const auto &token_size   = get_input(1).size();
+    const auto token_size    = static_cast<int32_t>(input_tensor.size());
 
     base::Status status =
         check_tensor_with_dim(input_tensor, base::DeviceType::kCPU, base::DataType::kTypeInt32, token_size);
