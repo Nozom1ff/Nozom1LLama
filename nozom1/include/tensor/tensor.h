@@ -70,6 +70,8 @@ public:
 
     size_t size() const;
 
+    bool is_empty() const;
+
     size_t byte_size() const;
 
     int32_t dims_size() const;

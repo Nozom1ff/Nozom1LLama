@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
+# 设置 CUDA 架构（支持 Blackwell 架构 RTX 5090）
+set(CMAKE_CUDA_ARCHITECTURES 75 80 86 89 90 120)  # 从 Turing 到 Blackwell (CUDA 13.1+)
+set(CMAKE_CUDA_ARCHITECTURES_ALL OFF)
+
 # 导出编译命令数据库
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -113,6 +117,7 @@ add_library(nozom1_base STATIC
 target_include_directories(nozom1_base
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/nozom1/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/nozom1/source
         ${SentencePiece_INCLUDE_DIRS}
         ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 )
@@ -150,6 +155,7 @@ if(TENSOR_SOURCES OR OP_SOURCES OR MODEL_SOURCES)
     target_include_directories(nozom1_core
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/nozom1/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/nozom1/source
             ${SentencePiece_INCLUDE_DIRS}
             ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     )
@@ -200,15 +206,27 @@ if(BUILD_TESTS)
         )
 
         # 链接库
-        target_link_libraries(${test_name}
-            PRIVATE
-                nozom1_base
-                GTest::gtest
-                GTest::gtest_main
-                glog::glog
-                ${CUDA_LIBRARIES}
-                ${CUDA_cuda_rt_LIBRARY}
-        )
+        if(TARGET nozom1_core)
+            target_link_libraries(${test_name}
+                PRIVATE
+                    nozom1_core
+                    GTest::gtest
+                    GTest::gtest_main
+                    glog::glog
+                    ${CUDA_LIBRARIES}
+                    ${CUDA_cuda_rt_LIBRARY}
+            )
+        else()
+            target_link_libraries(${test_name}
+                PRIVATE
+                    nozom1_base
+                    GTest::gtest
+                    GTest::gtest_main
+                    glog::glog
+                    ${CUDA_LIBRARIES}
+                    ${CUDA_cuda_rt_LIBRARY}
+            )
+        endif()
 
         target_include_directories(${test_name}
             PRIVATE

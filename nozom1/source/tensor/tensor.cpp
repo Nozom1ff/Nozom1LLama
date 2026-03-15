@@ -116,6 +116,8 @@ void Tensor::to_cuda(cudaStream_t stream)
                          base::MemcpyKind::kMemcpyCPU2CUDA,
                          stream);
         this->buffer_ = cu_buffer;
+        // 修复：更新 device_type
+        this->set_device_type(base::DeviceType::kCUDA);
     }
     else
     {
@@ -142,6 +144,8 @@ void Tensor::to_cpu()
                          byte_size,
                          base::MemcpyKind::kMemcpyCUDA2CPU);
         this->buffer_ = cpu_buffer;
+        // 修复：更新 device_type
+        this->set_device_type(base::DeviceType::kCPU);
     }
     else
     {
@@ -154,6 +158,11 @@ void Tensor::to_cpu()
 size_t Tensor::size() const
 {
     return this->size_;
+}
+
+bool Tensor::is_empty() const
+{
+    return size_ == 0 || buffer_ == nullptr || buffer_->ptr() == nullptr;
 }
 
 size_t Tensor::byte_size() const
