@@ -8,6 +8,16 @@
 
 // REVIEW
 
-// FIX
+// FIXME
 
 // XXX
+
+// DONE
+
+// WONTDO
+
+// BUG
+
+// [x]
+
+// []
