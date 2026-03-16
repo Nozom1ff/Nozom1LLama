@@ -1,6 +1,5 @@
-#include "../kernels_interface.h"
 #include "argmax_kernel.cuh"
-#include "tensor/tensor.h"
+#include "base/alloc.h"
 
 namespace kernel
 {
@@ -19,8 +18,8 @@ __forceinline__ __device__ void warp_reduce_argmax(float &val, size_t &ptr)
             ptr = tmp_ptr;
         }
         else if (tmp_val == val && tmp_ptr < ptr)
-        {                   // NOTE 这种情况也要更新tmp_ptr
-            ptr = tmp_ptr;  // 保证结果的确定性和一致性。
+        {
+            ptr = tmp_ptr;
         }
     }
 }
@@ -65,8 +64,11 @@ __global__ void argmax_kernel_fp32_block(const float *input_ptr, size_t size, fl
     int bid        = blockIdx.x;
     int global_tid = threadIdx.x + blockDim.x * blockIdx.x;
 
-    size_t max_index = global_tid;
-    float max_value  = input_ptr[global_tid];
+    // 初始化为无效值
+    size_t max_index = SIZE_MAX;
+    float max_value  = -INFINITY;
+
+    // Grid-stride 循环处理所有元素
     for (size_t i = global_tid; i < size; i += gridDim.x * blockDim.x)
     {
         if (input_ptr[i] > max_value)
@@ -130,7 +132,8 @@ __global__ void argmax_kernel_fp32(const float *temp_max_val,
     // thread 0 写入最终结果
     if (tid == 0)
     {
-        *output_idx = max_index;
+        // 如果没有找到有效值（所有 block 都是 SIZE_MAX），返回 0 作为后备
+        *output_idx = (max_index == SIZE_MAX) ? 0 : max_index;
     }
 }
 
@@ -139,13 +142,18 @@ size_t argmax_kernel_cu(const float *input_ptr, size_t size, void *stream)
     std::shared_ptr<base::DeviceAllocator> alloc_cu = base::CUDADeviceAllocatorFactory::get_instance();
 
     size_t *index           = static_cast<size_t *>(alloc_cu->allocate(sizeof(size_t)));
-    size_t output_index     = 0;
     const int max_grid_size = 65535;  // NOTE 限制避免temp过大
     int grid_size           = min((int)((size + 512 - 1) / 512), max_grid_size);
 
-    float *temp_val     = static_cast<float *>(alloc_cu->allocate(sizeof(float) * grid_size));
-    size_t *temp_ptr    = static_cast<size_t *>(alloc_cu->allocate(sizeof(size_t) * (grid_size)));
+    float *temp_val  = static_cast<float *>(alloc_cu->allocate(sizeof(float) * grid_size));
+    size_t *temp_ptr = static_cast<size_t *>(alloc_cu->allocate(sizeof(size_t) * (grid_size)));
+
+    // 初始化 temp 数组（使用 CUDA memset）
+    cudaMemset(temp_val, 0, sizeof(float) * grid_size);
+    cudaMemset(temp_ptr, 0xFF, sizeof(size_t) * grid_size);  // 设置为 SIZE_MAX
+
     size_t output_index = 0;
+
     if (!stream)
     {
         argmax_kernel_fp32_block<<<grid_size, 512>>>(input_ptr, size, temp_val, temp_ptr);
@@ -155,9 +163,10 @@ size_t argmax_kernel_cu(const float *input_ptr, size_t size, void *stream)
     else
     {
         cudaStream_t stream_ = static_cast<cudaStream_t>(stream);
-        argmax_kernel_fp32_block<<<grid_size, 512>>>(input_ptr, size, temp_val, temp_ptr);
-        argmax_kernel_fp32<<<1, 512>>>(temp_val, temp_ptr, grid_size, index);
-        cudaMemcpy(&output_index, index, sizeof(size_t), cudaMemcpyDeviceToHost, strean_);
+        argmax_kernel_fp32_block<<<grid_size, 512, 0, stream_>>>(input_ptr, size, temp_val, temp_ptr);
+        argmax_kernel_fp32<<<1, 512, 0, stream_>>>(temp_val, temp_ptr, grid_size, index);
+        cudaMemcpyAsync(&output_index, index, sizeof(size_t), cudaMemcpyDeviceToHost, stream_);
+        cudaStreamSynchronize(stream_);
     }
 
     return output_index;
