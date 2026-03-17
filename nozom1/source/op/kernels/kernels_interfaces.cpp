@@ -5,6 +5,7 @@
 #include "cuda/swiglu_kernel.cuh"
 #include "cuda/rmsnorm_kernel.cuh"
 #include "cuda/rope.cuh"
+#include "cuda/matmul_kernel.cuh"
 
 namespace kernel
 {
@@ -112,6 +113,42 @@ RoPEKernel get_rope_kernel(base::DeviceType device_type)
     else
     {
         LOG(FATAL) << "Unknown device type for get a rope kernel.";
+        return nullptr;
+    }
+}
+
+MatmulKernel get_matmul_kernel(base::DeviceType device_type)
+{
+    if (device_type == base::DeviceType::kCPU)
+    {
+        LOG(FATAL) << "CPU Operator is not supported!";
+        return nullptr;
+    }
+    else if (device_type == base::DeviceType::kCUDA)
+    {
+        return matmul_kernel_cu;
+    }
+    else
+    {
+        LOG(FATAL) << "Unknown device type for get a matmul kernel.";
+        return nullptr;
+    }
+}
+
+MatmulKernelQuant get_matmul_kernel_quant8(base::DeviceType device_type)
+{
+    if (device_type == base::DeviceType::kCPU)
+    {
+        LOG(FATAL) << "CPU Operator is not supported!";
+        return nullptr;
+    }
+    else if (device_type == base::DeviceType::kCUDA)
+    {
+        return matmul_kernel_cu_qint8;
+    }
+    else
+    {
+        LOG(FATAL) << "Unknown device type for get a matmul quant8 kernel.";
         return nullptr;
     }
 }
