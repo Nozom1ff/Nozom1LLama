@@ -22,7 +22,7 @@ __device__ void softmax_gpu(float* __restrict__ x, int size) {
   using BlockReduce = cub::BlockReduce<float, thread_num>;
   __shared__ BlockReduce::TempStorage temp;
   __shared__ float shared_val;
-  max_val = BlockReduce(temp).Reduce(max_val, cub::Max());
+  max_val = BlockReduce(temp).Reduce(max_val, [](float a, float b) { return max(a, b); });
   if (threadIdx.x == 0) {
     shared_val = max_val;
   }

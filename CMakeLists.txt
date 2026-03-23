@@ -6,12 +6,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CUDA_COMPILER "/usr/local/cuda/bin/nvcc")
 
 project(llama_infer CXX CUDA)
-include(cmake/cuda.cmake)
+
+# Set CUDA architecture to compute_120 (RTX 30xx series)
+set(CMAKE_CUDA_ARCHITECTURES 120)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 17)
 
 option(LLAMA3_SUPPORT OFF)
 if (LLAMA3_SUPPORT)

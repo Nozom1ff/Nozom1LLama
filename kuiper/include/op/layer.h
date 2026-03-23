@@ -1,14 +1,29 @@
 #ifndef KUIPER_INCLUDE_OP_LAYER_H_
 #define KUIPER_INCLUDE_OP_LAYER_H_
-#include <base/cuda_config.h>
 #include <string>
 #include <vector>
 #include "base/base.h"
 #include "tensor/tensor.h"
 
+namespace kernel {
+struct CudaConfig;
+}  // namespace kernel
+
 namespace op {
 class Layer;
-
+enum class LayerType : uint8_t {
+  kLayerUnknown = 0,
+  kLayerLinear = 1,
+  kLayerEncode = 2,
+  kLayerEmbedding = 3,
+  kLayerRMSNorm = 4,
+  kLayerMatmul = 5,
+  kLayerRoPe = 6,
+  kLayerMHA = 7,
+  kLayerSoftmax = 8,
+  kLayerAdd = 9,
+  kLayerSwiGLU = 10,
+};
 class BaseLayer {
  public:
   explicit BaseLayer(base::DeviceType device_type, LayerType layer_type, base::DataType data_type,
