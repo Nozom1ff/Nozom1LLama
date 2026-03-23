@@ -31,6 +31,12 @@ if (QWEN3_SUPPORT)
   message(STATUS "QWEN3 SUPPORT")
   add_definitions(-DQWEN3_SUPPORT)
 endif()
+
+option(LLAMA2_SUPPORT ON)
+if (LLAMA2_SUPPORT)
+  message(STATUS "LLAMA2 SUPPORT")
+  add_definitions(-DLLAMA2_SUPPORT)
+endif()
 # ---- Add dependencies via CPM ----
 # see https://github.com/TheLartians/CPM.cmake for more info
 option(USE_CPM "Use CPM for dependency management" OFF)
@@ -58,31 +64,36 @@ if(USE_CPM)
     GIT_TAG 14.0.1
   )
 
+  # LLAMA3/QWEN support dependencies - load abseil first before sentencepiece
+  if(LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
+    CPMAddPackage(
+      NAME abseil-cpp
+      GITHUB_REPOSITORY abseil/abseil-cpp
+      GIT_TAG 20230802.1
+      OPTIONS "ABSL_ENABLE_INSTALL ON" "ABSL_PROPAGATE_CXX_STD ON"
+    )
+
+    CPMAddPackage(
+      NAME re2
+      GITHUB_REPOSITORY google/re2
+      GIT_TAG 2023-07-01
+      OPTIONS "RE2_BUILD_TESTING OFF"
+    )
+
+    CPMAddPackage(
+      NAME nlohmann_json
+      GITHUB_REPOSITORY nlohmann/json
+      VERSION 3.11.3
+    )
+  endif()
+
   CPMAddPackage(
     NAME sentencepiece
     GITHUB_REPOSITORY google/sentencepiece
     VERSION 0.2.0
+    OPTIONS "SPM_USE_BUILTIN_ABSL=OFF"
   )
   find_package(sentencepiece REQUIRED)
-
-  if (LLAMA3_SUPPORT OR QWEN2_SUPPORT OR QWEN3_SUPPORT)
-    CPMAddPackage(
-        NAME absl
-        GITHUB_REPOSITORY abseil/abseil-cpp
-        GIT_TAG 20240722.0
-        OPTIONS "BUILD_TESTING Off" "ABSL_PROPAGATE_CXX_STD ON" "ABSL_ENABLE_INSTALL ON"
-    )
-    CPMAddPackage(
-        NAME re2
-        GITHUB_REPOSITORY google/re2
-        GIT_TAG 2024-07-02
-    )
-    CPMAddPackage(
-        NAME nlohmann_json
-        GITHUB_REPOSITORY nlohmann/json
-        VERSION 3.11.3
-    )
-  endif()
 endif()
 
 # ---------------------------------
