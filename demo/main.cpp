@@ -1,8 +1,8 @@
 #include <base/base.h>
 #include <base/tick.h>
 #include <glog/logging.h>
-#include "model/llama3.h"
-int32_t generate(const model::LLama2Model& model, const std::string& sentence, int total_steps,
+#include "model/qwen2.h"
+int32_t generate(const model::Qwen2Model& model, const std::string& sentence, int total_steps,
                  bool need_output = false) {
   auto tokens = model.encode(sentence);
   int32_t prompt_len = tokens.size();
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
   const char* checkpoint_path = argv[1];  // e.g. out/model.bin
   const char* tokenizer_path = argv[2];
 
-  model::LLama2Model model(base::TokenizerType::kEncodeBpe, tokenizer_path, checkpoint_path, false);
+  model::Qwen2Model model(base::TokenizerType::kEncodeBpe, tokenizer_path, checkpoint_path, true);
   auto init_status = model.init(base::DeviceType::kDeviceCUDA);
   if (!init_status) {
     LOG(FATAL) << "The model init failed, the error code is: " << init_status.get_err_code();
