@@ -110,6 +110,9 @@ aux_source_directory(kuiper/source/op/kernels/cuda DIR_KERNEL_CUDA)
 aux_source_directory(kuiper/source/op/kernels/ DIR_KERNEL)
 aux_source_directory(kuiper/source/sampler DIR_SAMPLE)
 
+# 显式添加 base 目录中的 CUDA 文件
+list(APPEND DIR_BASE ${CMAKE_CURRENT_SOURCE_DIR}/kuiper/source/base/data_type.cu)
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 add_library(llama SHARED ${DIR_TENSOR} ${DIR_BASE} ${DIR_OP} ${DIR_KERNEL} ${DIR_MODEL} ${DIR_KERNEL_CPU} ${DIR_KERNEL_CUDA} ${DIR_KERNEL} ${DIR_SAMPLE})
