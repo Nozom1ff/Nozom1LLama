@@ -60,6 +60,17 @@ MatmulKernelQuant get_matmul_kernel_quant8(base::DeviceType device_type) {
   }
 }
 
+MatmulKernelFP16 get_matmul_kernel_fp16(base::DeviceType device_type) {
+  if (device_type == base::DeviceType::kDeviceCPU) {
+    return matmul_kernel_cpu_fp16;
+  } else if (device_type == base::DeviceType::kDeviceCUDA) {
+    return matmul_kernel_cu_fp16;
+  } else {
+    LOG(FATAL) << "Unknown device type for get a matmul fp16 kernel.";
+    return nullptr;
+  }
+}
+
 MHAKernel get_mha_kernel(base::DeviceType device_type) {
   if (device_type == base::DeviceType::kDeviceCPU) {
     return mha_kernel;

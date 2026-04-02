@@ -3,6 +3,12 @@
 #include <glog/logging.h>
 #include <cstdint>
 #include <string>
+
+// FP16 类型定义：使用 uint16_t 作为底层类型
+// 这样可以在非 CUDA 环境中使用
+namespace base {
+using float16_t = uint16_t;  // FP16 的存储类型
+}
 #define UNUSED(expr) \
   do {               \
     (void)(expr);    \
@@ -44,6 +50,7 @@ enum class DataType : uint8_t {
   kDataTypeFp32 = 1,
   kDataTypeInt8 = 2,
   kDataTypeInt32 = 3,
+  kDataTypeFp16 = 4,  // FP16 半精度浮点数
 };
 
 enum class ModelType : uint8_t {
@@ -58,6 +65,8 @@ inline size_t DataTypeSize(DataType data_type) {
     return sizeof(int8_t);
   } else if (data_type == DataType::kDataTypeInt32) {
     return sizeof(int32_t);
+  } else if (data_type == DataType::kDataTypeFp16) {
+    return sizeof(float16_t);  // sizeof(uint16_t) = 2
   } else {
     return 0;
   }

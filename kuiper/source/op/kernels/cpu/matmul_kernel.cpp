@@ -39,4 +39,13 @@ void matmul_kernel_cpu(const tensor::Tensor& input, const tensor::Tensor& weight
   arma::fmat output_mat(const_cast<float*>(output_ptr), in_dim1, wei_dim0, false, true);
   output_mat = ((input_mat * weight_mat)) * scale;
 }
+
+void matmul_kernel_cpu_fp16(const tensor::Tensor& input, const tensor::Tensor& weight,
+                            const tensor::Tensor& output, const CudaConfig* config) {
+  UNUSED(input);
+  UNUSED(weight);
+  UNUSED(output);
+  UNUSED(config);
+  LOG(FATAL) << "FP16 MatMul kernel is not supported on CPU. Please use CUDA device.";
+}
 }  // namespace kernel

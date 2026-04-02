@@ -6,5 +6,8 @@ namespace kernel {
 void matmul_kernel_cpu(const tensor::Tensor& input, const tensor::Tensor& weight,
                        const tensor::Tensor& output, float scale = 1.f,
                        const CudaConfig* config = nullptr);
+
+void matmul_kernel_cpu_fp16(const tensor::Tensor& input, const tensor::Tensor& weight,
+                            const tensor::Tensor& output, const CudaConfig* config = nullptr);
 }  // namespace kernel
 #endif  // LLAMA_INFER_MATMUL_KERNEL_H
