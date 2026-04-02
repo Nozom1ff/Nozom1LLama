@@ -13,6 +13,9 @@ typedef void (*MatmulKernelQuant)(const tensor::Tensor& input, const tensor::Ten
                                   const tensor::Tensor& output, int32_t group_size,
                                   const tensor::Tensor& scale, const CudaConfig* config);
 
+typedef void (*MatmulKernelFP16)(const tensor::Tensor& input, const tensor::Tensor& weight,
+                                 const tensor::Tensor& output, const CudaConfig* config);
+
 typedef void (*EmbeddingKernel)(const tensor::Tensor& input, const tensor::Tensor& weight,
                                 const tensor::Tensor& output, int32_t vocab_size, void* stream);
 
@@ -55,6 +58,8 @@ EmbeddingKernel get_emb_kernel(base::DeviceType device_type);
 MatmulKernel get_matmul_kernel(base::DeviceType device_type);
 
 MatmulKernelQuant get_matmul_kernel_quant8(base::DeviceType device_type);
+
+MatmulKernelFP16 get_matmul_kernel_fp16(base::DeviceType device_type);
 
 MHAKernel get_mha_kernel(base::DeviceType device_type);
 
