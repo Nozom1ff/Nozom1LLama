@@ -125,4 +125,70 @@ void DataTypeConverter::int8_to_fp16_gpu(const int8_t* int8_weights_device,
   }
 }
 
+// ========== GPU 能力检测实现 ==========
+
+bool DataTypeConverter::supports_fp16() {
+  int device_count = 0;
+  cudaError_t err = cudaGetDeviceCount(&device_count);
+  if (err != cudaSuccess || device_count == 0) {
+    return false;
+  }
+
+  int device = 0;
+  cudaDeviceProp prop;
+  err = cudaGetDeviceProperties(&prop, device);
+  if (err != cudaSuccess) {
+    return false;
+  }
+
+  // FP16 支持需要计算能力 sm_53+ (Maxwell) 或更高
+  // 但原生 FP16 计算建议 sm_60+ (Pascal)
+  return (prop.major >= 5 && prop.minor >= 3) || (prop.major >= 6);
+}
+
+bool DataTypeConverter::supports_fp16_tensor_core() {
+  int device_count = 0;
+  cudaError_t err = cudaGetDeviceCount(&device_count);
+  if (err != cudaSuccess || device_count == 0) {
+    return false;
+  }
+
+  int device = 0;
+  cudaDeviceProp prop;
+  err = cudaGetDeviceProperties(&prop, device);
+  if (err != cudaSuccess) {
+    return false;
+  }
+
+  // Tensor Core 支持需要计算能力 sm_70+ (Volta) 或更高
+  // sm_70: Volta (V100)
+  // sm_75: Turing (RTX 20 系列, T4)
+  // sm_80: Ampere (A100, RTX 30 系列)
+  // sm_86: Ampere (RTX 30 系列, A40)
+  // sm_89: Ada Lovelace (RTX 40 系列, L40)
+  // sm_90: Hopper (H100)
+  return prop.major >= 7;
+}
+
+std::string DataTypeConverter::get_gpu_architecture() {
+  int device_count = 0;
+  cudaError_t err = cudaGetDeviceCount(&device_count);
+  if (err != cudaSuccess || device_count == 0) {
+    return "CPU only (no CUDA)";
+  }
+
+  int device = 0;
+  cudaDeviceProp prop;
+  err = cudaGetDeviceProperties(&prop, device);
+  if (err != cudaSuccess) {
+    return "Unknown GPU";
+  }
+
+  // 返回 GPU 名称和计算能力
+  char buffer[256];
+  snprintf(buffer, sizeof(buffer), "%s (sm_%d%d)",
+           prop.name, prop.major, prop.minor);
+  return std::string(buffer);
+}
+
 }  // namespace base

@@ -142,11 +142,10 @@ using namespace nvcuda::wmma;
 
 template <int TILE_M, int TILE_N, int TILE_K>
 __global__ void matmul_wmma_fp16_kernel(
-    const half* __restrict__ A,   // [M, K] 输入矩阵 (FP16)
-    const half* __restrict__ B,   // [K, N] 权重矩阵 (FP16, 转置后)
-    float* __restrict__ C,        // [M, N] 输出矩阵 (FP32)
+    const half* __restrict__ A,  // [M, K] 输入矩阵 (FP16)
+    const half* __restrict__ B,  // [K, N] 权重矩阵 (FP16, 转置后)
+    float* __restrict__ C,       // [M, N] 输出矩阵 (FP32)
     int M, int N, int K) {
-
   // WMMA 配置: 16x16x16
   constexpr int WMMA_M = 16;
   constexpr int WMMA_N = 16;
@@ -176,9 +175,7 @@ __global__ void matmul_wmma_fp16_kernel(
   // 分块矩阵乘法
   for (int k_tile = 0; k_tile < K; k_tile += TILE_K) {
     // 加载 A 的当前块到共享内存
-    #pragma unroll
     for (int i = threadIdx.y; i < TILE_M; i += blockDim.y) {
-      #pragma unroll
       for (int j = threadIdx.x; j < TILE_K; j += blockDim.x) {
         int row = warp_m * WMMA_M + i;
         int col = k_tile + j;
@@ -191,9 +188,7 @@ __global__ void matmul_wmma_fp16_kernel(
     }
 
     // 加载 B 的当前块到共享内存
-    #pragma unroll
     for (int i = threadIdx.y; i < TILE_K; i += blockDim.y) {
-      #pragma unroll
       for (int j = threadIdx.x; j < TILE_N; j += blockDim.x) {
         int row = k_tile + i;
         int col = warp_n * WMMA_N + j;
@@ -207,8 +202,8 @@ __global__ void matmul_wmma_fp16_kernel(
 
     __syncthreads();
 
-    // WMMA 矩阵乘累加
-    #pragma unroll
+// WMMA 矩阵乘累加
+#pragma unroll
     for (int ki = 0; ki < TILE_K; ki += WMMA_K) {
       // 从共享内存加载到 fragment
       load_matrix_sync(a_frag, &shmem_A[0][ki], TILE_K + 8);
@@ -245,8 +240,8 @@ void matmul_kernel_cu_fp16(const tensor::Tensor& input, const tensor::Tensor& we
   // output: [K]
 
   const int32_t M = input.get_dim(input.dims_size() - 1);  // input 的最后一维
-  const int32_t K = weight.get_dim(0);                      // weight 的行数 (输出维度)
-  CHECK_EQ(M, weight.get_dim(1));                           // weight 的列数必须等于 input 维度
+  const int32_t K = weight.get_dim(0);                     // weight 的行数 (输出维度)
+  CHECK_EQ(M, weight.get_dim(1));                          // weight 的列数必须等于 input 维度
 
   // WMMA tile 大小
   constexpr int TILE_M = 64;
@@ -261,21 +256,22 @@ void matmul_kernel_cu_fp16(const tensor::Tensor& input, const tensor::Tensor& we
   cudaStream_t stream = config ? config->stream : nullptr;
 
   if (stream) {
-    matmul_wmma_fp16_kernel<TILE_M, TILE_N, TILE_K><<<grid, block, 0, stream>>>(
-        reinterpret_cast<const half*>(input.ptr<base::float16_t>()),
-        reinterpret_cast<const half*>(weight.ptr<base::float16_t>()),
-        const_cast<float*>(output.ptr<float>()), static_cast<int>(1), static_cast<int>(K), static_cast<int>(M));
+    matmul_wmma_fp16_kernel<TILE_M, TILE_N, TILE_K>
+        <<<grid, block, 0, stream>>>(reinterpret_cast<const half*>(input.ptr<base::float16_t>()),
+                                     reinterpret_cast<const half*>(weight.ptr<base::float16_t>()),
+                                     const_cast<float*>(output.ptr<float>()), static_cast<int>(1),
+                                     static_cast<int>(K), static_cast<int>(M));
   } else {
-    matmul_wmma_fp16_kernel<TILE_M, TILE_N, TILE_K><<<grid, block>>>(
-        reinterpret_cast<const half*>(input.ptr<base::float16_t>()),
-        reinterpret_cast<const half*>(weight.ptr<base::float16_t>()),
-        const_cast<float*>(output.ptr<float>()), static_cast<int>(1), static_cast<int>(K), static_cast<int>(M));
+    matmul_wmma_fp16_kernel<TILE_M, TILE_N, TILE_K>
+        <<<grid, block>>>(reinterpret_cast<const half*>(input.ptr<base::float16_t>()),
+                          reinterpret_cast<const half*>(weight.ptr<base::float16_t>()),
+                          const_cast<float*>(output.ptr<float>()), static_cast<int>(1),
+                          static_cast<int>(K), static_cast<int>(M));
   }
 
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
-    LOG(FATAL) << "CUDA error in matmul_kernel_cu_fp16: "
-               << cudaGetErrorString(err);
+    LOG(FATAL) << "CUDA error in matmul_kernel_cu_fp16: " << cudaGetErrorString(err);
   }
 }
 }  // namespace kernel

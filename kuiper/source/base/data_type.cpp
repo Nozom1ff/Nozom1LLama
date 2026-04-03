@@ -203,19 +203,8 @@ void DataTypeConverter::int8_to_fp16_gpu(const int8_t*, const float*, int, size_
 
 // ========== 工具函数实现 ==========
 
-bool DataTypeConverter::supports_fp16() {
-  // CPU 端总是返回 false
-  return false;
-}
-
-bool DataTypeConverter::supports_fp16_tensor_core() {
-  // CPU 端总是返回 false
-  return false;
-}
-
-std::string DataTypeConverter::get_gpu_architecture() {
-  return "CPU only (no CUDA)";
-}
+// 注意: supports_fp16(), supports_fp16_tensor_core(), get_gpu_architecture()
+// 这三个函数在 data_type.cu 中实现，以支持 GPU 能力检测
 
 float DataTypeConverter::verify_fp32_to_fp16_precision(const float* fp32_data,
                                                        const float16_t* fp16_data,
