@@ -298,6 +298,30 @@ test_op/test_cu_matmul.cpp.s:
 	cd /home/nozom1/code/cuda/LLama/KuiperLLama && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test_llm.dir/build.make test/CMakeFiles/test_llm.dir/test_op/test_cu_matmul.cpp.s
 .PHONY : test_op/test_cu_matmul.cpp.s
 
+test_op/test_cu_matmul_fp16.o: test_op/test_cu_matmul_fp16.cpp.o
+.PHONY : test_op/test_cu_matmul_fp16.o
+
+# target to build an object file
+test_op/test_cu_matmul_fp16.cpp.o:
+	cd /home/nozom1/code/cuda/LLama/KuiperLLama && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test_llm.dir/build.make test/CMakeFiles/test_llm.dir/test_op/test_cu_matmul_fp16.cpp.o
+.PHONY : test_op/test_cu_matmul_fp16.cpp.o
+
+test_op/test_cu_matmul_fp16.i: test_op/test_cu_matmul_fp16.cpp.i
+.PHONY : test_op/test_cu_matmul_fp16.i
+
+# target to preprocess a source file
+test_op/test_cu_matmul_fp16.cpp.i:
+	cd /home/nozom1/code/cuda/LLama/KuiperLLama && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test_llm.dir/build.make test/CMakeFiles/test_llm.dir/test_op/test_cu_matmul_fp16.cpp.i
+.PHONY : test_op/test_cu_matmul_fp16.cpp.i
+
+test_op/test_cu_matmul_fp16.s: test_op/test_cu_matmul_fp16.cpp.s
+.PHONY : test_op/test_cu_matmul_fp16.s
+
+# target to generate assembly for a file
+test_op/test_cu_matmul_fp16.cpp.s:
+	cd /home/nozom1/code/cuda/LLama/KuiperLLama && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test_llm.dir/build.make test/CMakeFiles/test_llm.dir/test_op/test_cu_matmul_fp16.cpp.s
+.PHONY : test_op/test_cu_matmul_fp16.cpp.s
+
 test_op/test_cu_rmsnorm.o: test_op/test_cu_rmsnorm.cpp.o
 .PHONY : test_op/test_cu_rmsnorm.o
 
@@ -568,6 +592,9 @@ help:
 	@echo "... test_op/test_cu_matmul.o"
 	@echo "... test_op/test_cu_matmul.i"
 	@echo "... test_op/test_cu_matmul.s"
+	@echo "... test_op/test_cu_matmul_fp16.o"
+	@echo "... test_op/test_cu_matmul_fp16.i"
+	@echo "... test_op/test_cu_matmul_fp16.s"
 	@echo "... test_op/test_cu_rmsnorm.o"
 	@echo "... test_op/test_cu_rmsnorm.i"
 	@echo "... test_op/test_cu_rmsnorm.s"
